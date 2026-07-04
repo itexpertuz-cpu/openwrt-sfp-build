@@ -1,0 +1,37 @@
+name: Get OpenWrt sfp.c
+
+on:
+  workflow_dispatch:
+
+jobs:
+  get-sfp:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Clone OpenWrt
+        run: |
+          git clone https://git.openwrt.org/openwrt/openwrt.git
+          cd openwrt
+          git checkout v25.12.4
+
+      - name: Find kernel version
+        run: |
+          cd openwrt
+          grep KERNEL_PATCHVER target/linux/mediatek/Makefile
+          grep LINUX_VERSION include/kernel-6.12
+
+      - name: Download kernel
+        run: |
+          cd openwrt
+
+          KVER=$(grep LINUX_VERSION include/kernel-6.12 | head -1 | cut -d= -f2)
+
+          wget https://cdn.kernel.org/pub/linux/kernel/v6.x/linux-${KVER}.tar.xz
+
+          tar -xf linux-${KVER}.tar.xz
+
+      - name: Upload sfp.c
+        uses: actions/upload-artifact@v4
+        with:
+          name: sfp.c
+          path: openwrt/linux-*/drivers/net/phy/sfp.c
