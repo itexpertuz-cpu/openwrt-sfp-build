@@ -1,0 +1,31 @@
+name: Find Linux Sources
+
+on:
+  workflow_dispatch:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Install
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y zstd wget
+
+      - name: Download SDK
+        run: |
+          wget -q https://downloads.openwrt.org/releases/25.12.4/targets/mediatek/filogic/openwrt-sdk-25.12.4-mediatek-filogic_gcc-14.3.0_musl.Linux-x86_64.tar.zst
+          tar --zstd -xf openwrt-sdk-25.12.4-mediatek-filogic_gcc-14.3.0_musl.Linux-x86_64.tar.zst
+
+      - name: Search kernel archive
+        run: |
+          SDK=$(find . -maxdepth 1 -type d -name "openwrt-sdk-*")
+          cd "$SDK"
+
+          echo "===== dl ====="
+          find dl -type f
+
+          echo
+          echo "===== linux archives ====="
+          find . -iname "linux-*.tar*" -o -iname "linux-*.zst" -o -iname "linux-*.xz"
