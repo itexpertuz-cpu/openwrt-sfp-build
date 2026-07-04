@@ -1,37 +1,14 @@
-name: Get OpenWrt sfp.c
+- name: Inspect tree
+  run: |
+    cd openwrt
 
-on:
-  workflow_dispatch:
+    echo "==== include ===="
+    ls include
 
-jobs:
-  get-sfp:
-    runs-on: ubuntu-latest
+    echo
+    echo "==== kernel files ===="
+    find include -iname "*kernel*"
 
-    steps:
-      - name: Clone OpenWrt
-        run: |
-          git clone https://git.openwrt.org/openwrt/openwrt.git
-          cd openwrt
-          git checkout v25.12.4
-
-      - name: Find kernel version
-        run: |
-          cd openwrt
-          grep KERNEL_PATCHVER target/linux/mediatek/Makefile
-          grep LINUX_VERSION include/kernel-6.12
-
-      - name: Download kernel
-        run: |
-          cd openwrt
-
-          KVER=$(grep LINUX_VERSION include/kernel-6.12 | head -1 | cut -d= -f2)
-
-          wget https://cdn.kernel.org/pub/linux/kernel/v6.x/linux-${KVER}.tar.xz
-
-          tar -xf linux-${KVER}.tar.xz
-
-      - name: Upload sfp.c
-        uses: actions/upload-artifact@v4
-        with:
-          name: sfp.c
-          path: openwrt/linux-*/drivers/net/phy/sfp.c
+    echo
+    echo "==== grep LINUX_VERSION ===="
+    grep -R "LINUX_VERSION" include target -n | head -50
