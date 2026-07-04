@@ -4,30 +4,69 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
+  sdk:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Install packages
+      - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y zstd build-essential gawk gettext unzip rsync file wget
+          sudo apt-get install -y \
+            zstd \
+            build-essential \
+            gawk \
+            gettext \
+            unzip \
+            rsync \
+            file \
+            wget \
+            python3
 
       - name: Download SDK
         run: |
-          wget https://downloads.openwrt.org/releases/25.12.4/targets/mediatek/filogic/openwrt-sdk-25.12.4-mediatek-filogic_gcc-14.3.0_musl.Linux-x86_64.tar.zst
+          wget -q https://downloads.openwrt.org/releases/25.12.4/targets/mediatek/filogic/openwrt-sdk-25.12.4-mediatek-filogic_gcc-14.3.0_musl.Linux-x86_64.tar.zst
 
       - name: Extract SDK
         run: |
           tar --zstd -xf openwrt-sdk-25.12.4-mediatek-filogic_gcc-14.3.0_musl.Linux-x86_64.tar.zst
 
-- name: Show SDK
-  run: |
-    SDK=$(find . -maxdepth 1 -type d -name "openwrt-sdk-*")
-    echo "SDK=$SDK"
+      - name: Inspect SDK
+        run: |
+          SDK=$(find . -maxdepth 1 -type d -name "openwrt-sdk-*")
 
-    cd "$SDK"
+          echo "SDK directory:"
+          echo "$SDK"
 
-    pwd
+          cd "$SDK"
 
-    ls -la
+          echo
+          echo "===== ROOT ====="
+          pwd
+          ls -lah
+
+          echo
+          echo "===== PACKAGE ====="
+          find package -maxdepth 2 -type d | sort
+
+          echo
+          echo "===== TARGET ====="
+          find target -maxdepth 3 -type d | sort
+
+          echo
+          echo "===== KERNEL FILES ====="
+          find . -iname "*kernel*" | sort
+
+          echo
+          echo "===== LINUX MAKEFILES ====="
+          find . -name Makefile | grep linux || true
+
+          echo
+          echo "===== SFP ====="
+          find . -iname "*sfp*" | sort
+
+      - name: Upload SDK tree
+        uses: actions/upload-artifact@v4
+        with:
+          name: sdk-tree
+          path: |
+            ${{ github.workspace }}
