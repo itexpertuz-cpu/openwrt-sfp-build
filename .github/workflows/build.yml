@@ -1,0 +1,29 @@
+name: OpenWrt SFP Builder
+
+on:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-24.04
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Clone OpenWrt
+        run: |
+          git clone --depth=1 --branch v25.12.4 https://github.com/openwrt/openwrt.git
+
+      - name: Show files
+        run: |
+          echo "=== Root ==="
+          ls -la openwrt
+
+          echo "=== Find sfp.c ==="
+          find openwrt -name sfp.c
+
+      - name: Upload list
+        uses: actions/upload-artifact@v4
+        with:
+          name: tree
+          path: openwrt
