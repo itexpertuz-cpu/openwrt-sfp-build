@@ -21,8 +21,13 @@ jobs:
         run: |
           tar --zstd -xf openwrt-sdk-25.12.4-mediatek-filogic_gcc-14.3.0_musl.Linux-x86_64.tar.zst
 
-      - name: Show SDK
-        run: |
-          ls
-          cd openwrt-sdk-*
-          ls
+- name: Show SDK
+  run: |
+    SDK=$(find . -maxdepth 1 -type d -name "openwrt-sdk-*")
+    echo "SDK=$SDK"
+
+    cd "$SDK"
+
+    pwd
+
+    ls -la
