@@ -1,0 +1,36 @@
+name: Check OpenWrt SFP patches
+
+on:
+  workflow_dispatch:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Clone OpenWrt
+        run: |
+          git clone --depth=1 --branch openwrt-25.12 https://git.openwrt.org/openwrt/openwrt.git
+          cd openwrt
+          git rev-parse HEAD
+
+      - name: Search SFP patches
+        run: |
+          cd openwrt
+
+          echo "===== Looking for sfp.c modifications ====="
+
+          grep -R "drivers/net/phy/sfp.c" target package -n || true
+
+          echo
+          echo "===== Looking for sfp ====="
+
+          grep -R "sfp" target package -n | head -500 || true
+
+      - name: Upload patches
+        uses: actions/upload-artifact@v4
+        with:
+          name: openwrt-tree
+          path: |
+            openwrt/target/linux
+            openwrt/package/kernel
