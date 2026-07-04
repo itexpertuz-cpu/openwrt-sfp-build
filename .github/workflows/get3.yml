@@ -1,0 +1,28 @@
+name: OpenWrt SDK Test
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Install packages
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y zstd build-essential gawk gettext unzip rsync file wget
+
+      - name: Download SDK
+        run: |
+          wget https://downloads.openwrt.org/releases/25.12.4/targets/mediatek/filogic/openwrt-sdk-25.12.4-mediatek-filogic_gcc-14.3.0_musl.Linux-x86_64.tar.zst
+
+      - name: Extract SDK
+        run: |
+          tar --zstd -xf openwrt-sdk-25.12.4-mediatek-filogic_gcc-14.3.0_musl.Linux-x86_64.tar.zst
+
+      - name: Show SDK
+        run: |
+          ls
+          cd openwrt-sdk-*
+          ls
